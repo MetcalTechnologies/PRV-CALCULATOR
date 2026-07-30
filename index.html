@@ -122,17 +122,6 @@
           <option value="kgfcm2">kgf/cm²</option>
         </select>
       </div>
-      <div class="field">
-        <label for="unitOut">Display Results In</label>
-        <select id="unitOut">
-          <option value="same" selected>Same as input</option>
-          <option value="psi">psi</option>
-          <option value="bar">bar</option>
-          <option value="kPa">kPa</option>
-          <option value="MPa">MPa</option>
-          <option value="kgfcm2">kgf/cm²</option>
-        </select>
-      </div>
       <div class="field" style="flex:0 0 auto;">
         <button class="btn" onclick="calculate()">Calculate</button>
       </div>
@@ -218,8 +207,7 @@ function fmt(v){
 function calculate(){
   const rawVal = parseFloat(document.getElementById('setPressure').value);
   const unitIn = document.getElementById('unitIn').value;
-  let unitOutSel = document.getElementById('unitOut').value;
-  const unitOut = unitOutSel === 'same' ? unitIn : unitOutSel;
+  const unitOut = unitIn;
 
   const resultCard = document.getElementById('resultCard');
   const resultBody = document.getElementById('resultBody');
