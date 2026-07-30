@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRV Tolerance Calculator</title>
+<style>
+  :root{
+    --navy:#0f2942;
+    --blue:#1a5f9e;
+    --accent:#2f8fd0;
+    --bg:#f4f7fa;
+    --card:#ffffff;
+    --border:#d9e2ec;
+    --text:#1c2b39;
+    --muted:#5b7083;
+    --good:#1e8e5a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px;
+  }
+  .wrap{max-width:820px;margin:0 auto;}
+  header{margin-bottom:24px;}
+  header h1{font-size:22px;margin:0 0 4px;color:var(--navy);}
+  header p{margin:0;color:var(--muted);font-size:14px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(15,41,66,0.04);
+  }
+  .card h2{font-size:15px;margin:0 0 14px;color:var(--navy);}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+  .field{flex:1;min-width:160px;}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.02em;}
+  input[type=number], select{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:15px;
+    background:#fff;
+    color:var(--text);
+  }
+  input[type=number]:focus, select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .btn{
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    padding:11px 20px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn:hover{background:var(--navy);}
+  table{width:100%;border-collapse:collapse;margin-top:4px;}
+  th, td{padding:10px 12px;text-align:left;font-size:14px;border-bottom:1px solid var(--border);}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.03em;font-weight:700;}
+  td.value{font-weight:700;color:var(--navy);}
+  .badge{
+    display:inline-block;
+    background:#eaf3fb;
+    color:var(--blue);
+    font-size:12px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+  .note{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.5;}
+  .empty td{color:var(--muted);font-style:italic;font-weight:400;}
+  .unit-out select{max-width:110px;display:inline-block;margin-left:8px;}
+  footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:28px;}
+  .flex-inline{display:flex;align-items:center;gap:8px;}
+  .logo-bar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .logo-mark{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:38px;
+    height:38px;
+    border-radius:8px;
+    background:var(--navy);
+  }
+  .logo-mark svg{width:22px;height:22px;}
+  .logo-text{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:.01em;
+    color:var(--navy);
+  }
+  .logo-text span{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-bar">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C12 2 5 9.5 5 14.5C5 18.09 8.13 21 12 21C15.87 21 19 18.09 19 14.5C19 9.5 12 2 12 2Z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="logo-text">Metcal<span>.</span></div>
+  </div>
+  <header>
+    <h1>Pressure Relieving Device — Tolerance Calculator</h1>
+    <p>Enter the set pressure to calculate relieving, reseating, and leak test tolerances per ASME Section VIII, Division 1.</p>
+  </header>
+
+  <div class="card">
+    <h2>Set Pressure</h2>
+    <div class="row">
+      <div class="field">
+        <label for="setPressure">Set Pressure</label>
+        <input type="number" id="setPressure" step="any" placeholder="e.g. 150" />
+      </div>
+      <div class="field">
+        <label for="unitIn">Unit</label>
+        <select id="unitIn">
+          <option value="psi" selected>psi</option>
+          <option value="bar">bar</option>
+          <option value="kPa">kPa</option>
+          <option value="MPa">MPa</option>
+          <option value="kgfcm2">kgf/cm²</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="unitOut">Display Results In</label>
+        <select id="unitOut">
+          <option value="same" selected>Same as input</option>
+          <option value="psi">psi</option>
+          <option value="bar">bar</option>
+          <option value="kPa">kPa</option>
+          <option value="MPa">MPa</option>
+          <option value="kgfcm2">kgf/cm²</option>
+        </select>
+      </div>
+      <div class="field" style="flex:0 0 auto;">
+        <button class="btn" onclick="calculate()">Calculate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <span class="badge" id="rangeBadge"></span>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Requirement</th><th>Calculated Value</th></tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+    <div class="note" id="footnote"></div>
+  </div>
+
+  <div class="card">
+    <h2>Reference — Tolerance Table (ASME Sec. VIII, Div. 1)</h2>
+    <table>
+      <thead>
+        <tr><th>Set Pressure Range</th><th>Set Pressure (Relieving)</th><th>Reseating Pressure</th><th>Leak Test Pressure</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Up to 70 psi (4.83 bar)</td>
+          <td>±2 psi (0.14 bar)</td>
+          <td>≥ 90% of set pressure, or "set pressure minus 5 psi," whichever is lower</td>
+          <td>Held pressure same as minimum reseating tolerance</td>
+        </tr>
+        <tr>
+          <td>71 psi to 1000 psi (8.84–68.98 bar)</td>
+          <td>±3% of set pressure</td>
+          <td>≥ 90% of set pressure</td>
+          <td>Held pressure same as minimum reseating tolerance</td>
+        </tr>
+        <tr>
+          <td>Above 1000 psi (6.9 MPa)</td>
+          <td>±3% of set pressure</td>
+          <td>≥ 93% of set pressure</td>
+          <td>Held at 95% of set pressure</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      Applies only where the manufacturer does not specify a tolerance — if one is provided, follow the manufacturer's specification.
+      For pilot-operated valves, blowdown tolerance is analysed at 2% of set pressure.
+    </div>
+  </div>
+
+  <footer>Based on Metcal Pressure Relieving Device slide 25. For engineering reference only — always verify against the current ASME code edition and manufacturer specs.</footer>
+</div>
+
+<script>
+// Conversion factors to psi
+const TO_PSI = {
+  psi: 1,
+  bar: 14.5037738,
+  kPa: 0.145037738,
+  MPa: 145.037738,
+  kgfcm2: 14.2233433
+};
+const UNIT_LABEL = {
+  psi: 'psi',
+  bar: 'bar',
+  kPa: 'kPa',
+  MPa: 'MPa',
+  kgfcm2: 'kgf/cm²'
+};
+
+function convert(valuePsi, toUnit){
+  return valuePsi / TO_PSI[toUnit];
+}
+
+function fmt(v){
+  if (v === null || v === undefined) return '—';
+  // round sensibly
+  let abs = Math.abs(v);
+  let decimals = abs >= 100 ? 1 : (abs >= 10 ? 2 : 3);
+  return (Math.round(v * Math.pow(10,decimals)) / Math.pow(10,decimals)).toString();
+}
+
+function calculate(){
+  const rawVal = parseFloat(document.getElementById('setPressure').value);
+  const unitIn = document.getElementById('unitIn').value;
+  let unitOutSel = document.getElementById('unitOut').value;
+  const unitOut = unitOutSel === 'same' ? unitIn : unitOutSel;
+
+  const resultCard = document.getElementById('resultCard');
+  const resultBody = document.getElementById('resultBody');
+  const rangeBadge = document.getElementById('rangeBadge');
+  const footnote = document.getElementById('footnote');
+
+  if (isNaN(rawVal) || rawVal <= 0){
+    resultCard.style.display = 'block';
+    rangeBadge.textContent = 'Invalid input';
+    resultBody.innerHTML = '<tr class="empty"><td colspan="3">Enter a positive set pressure value.</td></tr>';
+    footnote.textContent = '';
+    return;
+  }
+
+  const setPsi = rawVal * TO_PSI[unitIn];
+  const u = UNIT_LABEL[unitOut];
+
+  let rangeLabel, relievingReq, relievingLowPsi, relievingHighPsi,
+      reseatReq, reseatMinPsi, leakReq, leakValPsi = null, leakNote = '';
+
+  if (setPsi <= 70){
+    rangeLabel = 'Up to 70 psi (4.83 bar)';
+    relievingReq = '±2 psi (0.14 bar)';
+    relievingLowPsi = setPsi - 2;
+    relievingHighPsi = setPsi + 2;
+
+    const opt1 = setPsi * 0.90;      // 90% of set pressure
+    const opt2 = setPsi - 5;          // set pressure minus 5 psi
+    reseatMinPsi = Math.min(opt1, opt2);
+    reseatReq = '≥ 90% of set pressure, or "set pressure minus 5 psi," whichever is lower';
+
+    leakReq = 'Held pressure same as minimum reseating tolerance';
+    leakValPsi = reseatMinPsi;
+  } else if (setPsi <= 1000){
+    rangeLabel = '71 psi to 1000 psi (8.84–68.98 bar)';
+    relievingReq = '±3% of set pressure';
+    relievingLowPsi = setPsi - (setPsi * 0.03);
+    relievingHighPsi = setPsi + (setPsi * 0.03);
+
+    reseatMinPsi = setPsi * 0.90;
+    reseatReq = '≥ 90% of set pressure';
+
+    leakReq = 'Held pressure same as minimum reseating tolerance';
+    leakValPsi = reseatMinPsi;
+  } else {
+    rangeLabel = 'Above 1000 psi (6.9 MPa)';
+    relievingReq = '±3% of set pressure';
+    relievingLowPsi = setPsi - (setPsi * 0.03);
+    relievingHighPsi = setPsi + (setPsi * 0.03);
+
+    reseatMinPsi = setPsi * 0.93;
+    reseatReq = '≥ 93% of set pressure';
+
+    leakReq = 'Held at 95% of set pressure';
+    leakValPsi = setPsi * 0.95;
+  }
+
+  rangeBadge.textContent = 'Applicable range: ' + rangeLabel;
+
+  const setOut = convert(setPsi, unitOut);
+  const relLow = convert(relievingLowPsi, unitOut);
+  const relHigh = convert(relievingHighPsi, unitOut);
+  const reseatMin = convert(reseatMinPsi, unitOut);
+
+  let rows = '';
+  rows += `<tr>
+      <td>Set / Relieving Pressure</td>
+      <td>${relievingReq}</td>
+      <td class="value">${fmt(relLow)} – ${fmt(relHigh)} ${u} <span style="color:var(--muted);font-weight:400;">(set: ${fmt(setOut)} ${u})</span></td>
+    </tr>`;
+  rows += `<tr>
+      <td>Reseating Pressure</td>
+      <td>${reseatReq}</td>
+      <td class="value">≥ ${fmt(reseatMin)} ${u}</td>
+    </tr>`;
+
+  if (leakValPsi !== null){
+    const leakOut = convert(leakValPsi, unitOut);
+    rows += `<tr>
+        <td>Leak Test Pressure</td>
+        <td>${leakReq}</td>
+        <td class="value">${fmt(leakOut)} ${u}</td>
+      </tr>`;
+  } else {
+    rows += `<tr class="empty">
+        <td>Leak Test Pressure</td>
+        <td>${leakReq}</td>
+        <td>—</td>
+      </tr>`;
+  }
+
+  resultBody.innerHTML = rows;
+  footnote.textContent = 'Applies only where the manufacturer does not specify a tolerance. For pilot-operated valves, blowdown tolerance is analysed at 2% of set pressure.';
+  resultCard.style.display = 'block';
+}
+
+document.getElementById('setPressure').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') calculate();
+});
+</script>
+</body>
+</html>
