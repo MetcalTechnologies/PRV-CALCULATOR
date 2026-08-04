@@ -308,5 +308,20 @@ document.getElementById('setPressure').addEventListener('keydown', function(e){
   if (e.key === 'Enter') calculate();
 });
 </script>
+<script>
+/* Back link to the tools index at the site root. */
+(function(){
+ if(document.getElementById("backToHub"))return;
+ var a=document.createElement("a");
+ a.id="backToHub";a.href="../";a.textContent="\u2190 All tools";
+ a.style.cssText="display:inline-block;font-size:13px;font-weight:600;color:#5b7083;text-decoration:none;margin:0 0 14px;";
+ a.addEventListener("mouseenter",function(){a.style.textDecoration="underline";});
+ a.addEventListener("mouseleave",function(){a.style.textDecoration="none";});
+ var host=document.querySelector(".wrap")||document.body;
+ var ref=host.querySelector(".logo-bar, .brand");
+ if(ref&&ref.parentNode===host)host.insertBefore(a,ref.nextSibling);
+ else host.insertBefore(a,host.firstChild);
+})();
+</script>
 </body>
 </html>
