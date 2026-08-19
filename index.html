@@ -60,6 +60,7 @@
     margin-bottom:20px;
     box-shadow:0 1px 2px rgba(15,41,66,0.04);
   }
+  .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .card h2{font-size:15px;margin:0 0 14px;color:var(--navy);}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
   .field{flex:1;min-width:160px;}
@@ -123,6 +124,8 @@
 :root{
   --brand:#144A81; --navy:#144A81; --blue:#1a5f9e; --accent:#2f8fd0;
   --ink:#1c2b39; --text:#1c2b39; --muted:#5b7083; --orange:#e8792a;
+  /* --orange is 2.9:1 on white - fine for a rule or a border, too faint for text */
+  --orange-text:#b8551a;
   --bg:#eef1f5; --card:#ffffff; --border:#dde4ec;
   --ok:#166534; --okbg:#f0fdf4; --warn:#b45309; --warnbg:#fffbeb;
   --bad:#b91c1c; --badbg:#fef2f2; --good:#1e8e5a;
@@ -132,6 +135,7 @@ html[data-theme="dark"]{
   color-scheme:dark;
   --brand:#8fbde8; --navy:#9cc6ee; --blue:#7fb3e3; --accent:#4ea3dd;
   --ink:#e4ecf4; --text:#e4ecf4; --muted:#9aabbd; --orange:#f0913f;
+  --orange-text:#f0913f;
   --bg:#111a24; --card:#18242f; --border:#2b3a49;
   --ok:#6ee7a8; --okbg:#132a1f; --warn:#f0b445; --warnbg:#2b2416;
   --bad:#f28b82; --badbg:#2c1a1a; --good:#6ee7a8;
@@ -236,10 +240,12 @@ html[data-theme="dark"] .box img{filter:brightness(0) invert(1);}
 </head>
 <body>
 <div class="wrap">
-  <div class="mtHead">
+  <header class="mtHead">
     <a class="mtLogo" href="../" aria-label="Metcal Technologies — all tools"><img src="../logo.png" alt="Metcal Technologies"></a>
     <nav class="mtNav" aria-label="Site"><a class="mtBack" href="../">&larr; All tools</a></nav>
-  </div>
+  </header>
+
+  <main id="content">
   <header>
     <h1>Pressure Relieving Device — Tolerance Calculator</h1>
     <p>Enter the set pressure to calculate relieving, reseating, and leak test tolerances per ASME Section VIII, Division 1.</p>
@@ -270,17 +276,20 @@ html[data-theme="dark"] .box img{filter:brightness(0) invert(1);}
 
   <div class="card" id="resultCard" style="display:none;">
     <span class="badge" id="rangeBadge"></span>
+    <div class="tablewrap" tabindex="0" aria-label="Tolerance results">
     <table>
       <thead>
         <tr><th>Parameter</th><th>Requirement</th><th>Calculated Value</th></tr>
       </thead>
       <tbody id="resultBody"></tbody>
     </table>
+    </div>
     <div class="note" id="footnote"></div>
   </div>
 
   <div class="card">
     <h2>Reference — Tolerance Table (ASME Sec. VIII, Div. 1)</h2>
+    <div class="tablewrap" tabindex="0" aria-label="ASME tolerance reference table">
     <table>
       <thead>
         <tr><th>Set Pressure Range</th><th>Set Pressure (Relieving)</th><th>Reseating Pressure</th><th>Leak Test Pressure</th></tr>
@@ -306,11 +315,14 @@ html[data-theme="dark"] .box img{filter:brightness(0) invert(1);}
         </tr>
       </tbody>
     </table>
+    </div>
     <div class="note">
       Applies only where the manufacturer does not specify a tolerance — if one is provided, follow the manufacturer's specification.
       For pilot-operated valves, blowdown tolerance is analysed at 2% of set pressure.
     </div>
   </div>
+
+  </main>
 
   <footer>Based on Metcal Pressure Relieving Device slide 25. For engineering reference only — always verify against the current ASME code edition and manufacturer specs.<br>Tool version 1.0 &middot; updated 7 August 2026.
   </footer>
@@ -634,7 +646,41 @@ document.getElementById('setPressure').addEventListener('keydown', function(e){
   }
   window.__metcalNoticeFor = noticeFor;   // exposed for the test suite
 
-  function init(){ mountThemeButton(); applyTheme(readTheme()); mountCopyButtons(); mountNotices(); }
+  /* ------------- Announce results to screen readers -------------
+     Without this a calculated value simply appears and is never spoken. */
+  function mountLiveRegions(){
+    var sel = '.result, .summary, .out, #resBody, #resultBody, #rows, #k1, #v1, #sum1';
+    Array.prototype.forEach.call(doc.querySelectorAll(sel), function (el) {
+      if (!el.hasAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
+    });
+  }
+
+  /* ------------- Report a problem, from the tool itself -------------
+     The feedback form lives on the front page, so a wrong figure spotted
+     inside a tool meant navigating away and re-picking the tool by hand.
+     This prefills the tool and the page it was seen on. */
+  var FB_EMAIL = 'm.amer@metcal.com.my';
+  function mountFeedbackLink(){
+    if (doc.getElementById('fbOpen')) return;            // the front page has the full form
+    var foot = doc.querySelector('footer');
+    if (!foot || doc.getElementById('mtReport')) return;
+    var tool = (doc.title || '').split('\u2014')[0].trim() || doc.title;
+    var body = 'Type: \nTool: ' + tool + '\nPage: ' + location.href +
+               '\n\nWhat looks wrong, and what did you expect?\n\n';
+    var a = doc.createElement('a');
+    a.id = 'mtReport';
+    a.href = 'mailto:' + FB_EMAIL + '?subject=' +
+             encodeURIComponent('Metcal tools \u2014 ' + tool) + '&body=' + encodeURIComponent(body);
+    a.textContent = 'Report a problem with this tool';
+    a.style.cssText = 'display:inline-block;margin-top:10px;color:var(--blue);';
+    foot.appendChild(doc.createElement('br'));
+    foot.appendChild(a);
+  }
+
+  function init(){
+    mountThemeButton(); applyTheme(readTheme());
+    mountCopyButtons(); mountNotices(); mountLiveRegions(); mountFeedbackLink();
+  }
   if(doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
 })();
